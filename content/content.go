@@ -13,13 +13,17 @@ var TextStyleInfo1 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.Col
 var TextStyleMain TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorWhite))
 var TextStyleError TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorDarkRed).Foreground(tcell.ColorRed))
 var TextStylePlaceholder TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorDarkGray))
+var TextStyleResult TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorGreen))
 
 type Content struct {
 	Text      []rune
 	InputText []rune
 
 	StartTime     time.Time
+	EndTime       time.Time
 	MistakesCount uint
+	Completed     bool
+	FinalSpeed    float32
 }
 
 // Initialize a new content struct
@@ -62,6 +66,10 @@ func (content *Content) RemoveLastInput() {
 // Returns:
 //   - speed
 func (content Content) GetSpeed() float32 {
+	if content.FinalSpeed != 0 {
+		return content.FinalSpeed
+	}
+
 	if (content.StartTime == time.Time{}) {
 		return 0
 	}
@@ -102,6 +110,10 @@ func (content Content) GetSpentSeconds() uint {
 		return 0
 	}
 
+	if content.IsCompleted() {
+		return uint(content.EndTime.Sub(content.StartTime).Seconds())
+	}
+
 	return uint(time.Since(content.StartTime).Seconds())
 }
 
@@ -111,4 +123,24 @@ func (c *Content) Reset() {
 	c.InputText = []rune{}
 	c.StartTime = time.Time{}
 	c.MistakesCount = 0
+	c.EndTime = time.Time{}
+	c.FinalSpeed = 0
+	c.Completed = false
+}
+
+// Detect if typing text is completed
+//
+// Returns:
+//   - bool: typing the text is completed or not
+func (c *Content) IsCompleted() bool {
+	if c.Completed {
+		return true
+	}
+	result := len(c.Text) == len(c.InputText)
+	if result {
+		c.FinalSpeed = c.GetSpeed()
+		c.EndTime = time.Now()
+	}
+	c.Completed = result
+	return result
 }

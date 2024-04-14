@@ -88,6 +88,12 @@ func (s Screen) Draw(c *content.Content) {
 		x++
 	}
 
+	if c.IsCompleted() {
+		y += 2
+		text := fmt.Sprintf("Your typing speed is %.2f WPS Accuracy: %.2f", c.GetSpeed(), c.GetAccuracy())
+		resultX := 0
+		drawText(s.screen, &resultX, &y, text, content.TextStyleResult)
+	}
 	drawMenu(s)
 
 	s.screen.Show()
@@ -99,7 +105,7 @@ func (s Screen) ReadEvent() tcell.Event {
 }
 
 func (s Screen) HandleEvent(event *tcell.EventKey, c *content.Content) {
-	if event.Key() == tcell.KeyBackspace || event.Key() == tcell.KeyBackspace2 {
+	if (event.Key() == tcell.KeyBackspace || event.Key() == tcell.KeyBackspace2) && !c.IsCompleted() {
 		c.RemoveLastInput()
 		return
 	}
@@ -112,8 +118,10 @@ func (s Screen) HandleEvent(event *tcell.EventKey, c *content.Content) {
 		}
 	}
 
-	input := event.Rune()
-	c.AddInput(input)
+	if !c.IsCompleted() {
+		input := event.Rune()
+		c.AddInput(input)
+	}
 }
 
 func drawInfo(screen tcell.Screen, y *int, c *content.Content) {
