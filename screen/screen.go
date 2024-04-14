@@ -57,19 +57,35 @@ func (s Screen) Draw(c *content.Content) {
 	drawInfo(s.screen, &y, c)
 
 	y += 2
+	x := 0
 
+	screenWidth, _ := s.screen.Size()
 	for index, r := range c.Text {
-		// TODO: add word wrap
+		// wrap text to next line
+		if r == ' ' && index < len(c.Text)-1 {
+			// check if we have enough room for next world
+			for i, n := range c.Text[index+1:] {
+				if n == ' ' {
+					if x+i > screenWidth-2 {
+						y += 1
+						x = 0
+					}
+					break
+				}
+			}
+		}
 		if len(c.InputText) >= index+1 {
 			input := c.InputText[index]
 			if input == r {
-				s.screen.SetContent(index, y, input, nil, tcell.Style(content.TextStyleMain))
+				s.screen.SetContent(x, y, input, nil, tcell.Style(content.TextStyleMain))
 			} else {
-				s.screen.SetContent(index, y, input, nil, tcell.Style(content.TextStyleError))
+				s.screen.SetContent(x, y, input, nil, tcell.Style(content.TextStyleError))
 			}
 		} else {
-			s.screen.SetContent(index, y, r, nil, tcell.Style(content.TextStylePlaceholder))
+			s.screen.SetContent(x, y, r, nil, tcell.Style(content.TextStylePlaceholder))
 		}
+
+		x++
 	}
 
 	drawMenu(s)
