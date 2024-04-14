@@ -17,6 +17,14 @@ func main() {
 				c.Reset()
 			},
 		},
+		{
+			Name:  "Toggle Error Highlighting Mode (Ctrl + T)",
+			Key:   tcell.KeyCtrlT,
+			Style: menu.MenuStyleDefault,
+			Action: func(c *content.Content) {
+				c.ToggleErrorHighlightingMode()
+			},
+		},
 	})
 	if err != nil {
 		panic(err)

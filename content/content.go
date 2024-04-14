@@ -15,15 +15,23 @@ var TextStyleError TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.Col
 var TextStylePlaceholder TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorDarkGray))
 var TextStyleResult TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorGreen))
 
+type HighlightMode string
+
+const (
+	HighlightModeOnlyColor     HighlightMode = "HighLightModeOnlyColor"
+	HighlightModeColorAndValue HighlightMode = "HighlightModeColorAndValue"
+)
+
 type Content struct {
 	Text      []rune
 	InputText []rune
 
-	StartTime     time.Time
-	EndTime       time.Time
-	MistakesCount uint
-	Completed     bool
-	FinalSpeed    float32
+	StartTime          time.Time
+	EndTime            time.Time
+	MistakesCount      uint
+	Completed          bool
+	FinalSpeed         float32
+	ErrorHighlightMode HighlightMode
 }
 
 // Initialize a new content struct
@@ -32,7 +40,8 @@ type Content struct {
 //   - Content
 func NewContent() *Content {
 	return &Content{
-		Text: []rune(randomdata.Paragraph()),
+		Text:               []rune(randomdata.Paragraph()),
+		ErrorHighlightMode: HighlightModeOnlyColor,
 	}
 }
 
@@ -143,4 +152,12 @@ func (c *Content) IsCompleted() bool {
 	}
 	c.Completed = result
 	return result
+}
+
+func (c *Content) ToggleErrorHighlightingMode() {
+	if c.ErrorHighlightMode == HighlightModeColorAndValue {
+		c.ErrorHighlightMode = HighlightModeOnlyColor
+	} else {
+		c.ErrorHighlightMode = HighlightModeColorAndValue
+	}
 }

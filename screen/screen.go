@@ -79,7 +79,11 @@ func (s Screen) Draw(c *content.Content) {
 			if input == r {
 				s.screen.SetContent(x, y, input, nil, tcell.Style(content.TextStyleMain))
 			} else {
-				s.screen.SetContent(x, y, input, nil, tcell.Style(content.TextStyleError))
+				ch := input
+				if c.ErrorHighlightMode == content.HighlightModeOnlyColor {
+					ch = r
+				}
+				s.screen.SetContent(x, y, ch, nil, tcell.Style(content.TextStyleError))
 			}
 		} else {
 			s.screen.SetContent(x, y, r, nil, tcell.Style(content.TextStylePlaceholder))
@@ -146,7 +150,8 @@ func drawMenu(s Screen) {
 	x := 0
 
 	for _, m := range s.menuItems {
-		drawText(s.screen, &x, &y, m.Name, content.TextStyle(m.Style))
+		drawText(s.screen, &x, &y, fmt.Sprintf(" %s ", m.Name), content.TextStyle(m.Style))
+		x += 2
 	}
 }
 
@@ -157,7 +162,8 @@ func drawText(screen tcell.Screen, x *int, y *int, text string, style content.Te
 		*x = 0
 	}
 
-	for index, r := range text {
-		screen.SetContent(*x+index, *y, r, nil, tcell.Style(style))
+	for _, r := range text {
+		screen.SetContent(*x, *y, r, nil, tcell.Style(style))
+		*x += 1
 	}
 }
