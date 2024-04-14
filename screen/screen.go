@@ -137,11 +137,11 @@ func drawInfo(screen tcell.Screen, y *int, c *content.Content) {
 	logoText := " GOTYPE "
 	screenWith, _ := screen.Size()
 	logoX := screenWith/2 - len(logoText)/2
-	drawText(screen, &logoX, y, logoText, content.TextStyleInfo1)
+	drawText(screen, &logoX, y, logoText, content.TextStyleInfo2)
 
 	speedText := fmt.Sprintf(" Speed: %.2f WPS ", c.GetSpeed())
 	speedX := screenWith - len(speedText) - 2
-	drawText(screen, &speedX, y, speedText, content.TextStyleInfo1)
+	drawText(screen, &speedX, y, speedText, content.TextStyleInfo3)
 }
 
 func drawMenu(s Screen) {

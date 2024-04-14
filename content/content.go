@@ -9,11 +9,13 @@ import (
 
 type TextStyle tcell.Style
 
-var TextStyleInfo1 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorLightBlue).Foreground(tcell.ColorDarkBlue))
+var TextStyleInfo1 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorOrange).Foreground(tcell.ColorBlack))
+var TextStyleInfo2 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorLightBlue).Foreground(tcell.ColorDarkBlue))
+var TextStyleInfo3 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorPink).Foreground(tcell.ColorPurple))
 var TextStyleMain TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorWhite))
-var TextStyleError TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorDarkRed).Foreground(tcell.ColorRed))
+var TextStyleError TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorRed).Foreground(tcell.ColorWhite))
 var TextStylePlaceholder TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorDarkGray))
-var TextStyleResult TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorGreen))
+var TextStyleResult TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorSeaGreen))
 
 type HighlightMode string
 
