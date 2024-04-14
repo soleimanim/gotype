@@ -90,7 +90,7 @@ func (s Screen) Draw(c *content.Content) {
 
 	if c.IsCompleted() {
 		y += 2
-		text := fmt.Sprintf("Your typing speed is %.2f WPS Accuracy: %.2f", c.GetSpeed(), c.GetAccuracy())
+		text := fmt.Sprintf("Your typing speed is %.2f WPS Accuracy: %.2f%%", c.GetSpeed(), c.GetAccuracy())
 		resultX := 0
 		drawText(s.screen, &resultX, &y, text, content.TextStyleResult)
 	}

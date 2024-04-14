@@ -50,7 +50,7 @@ func (content *Content) AddInput(r rune) {
 
 	if len(content.InputText) < len(content.Text) {
 		content.InputText = append(content.InputText, r)
-		if content.Text[len(content.Text)-1] != r {
+		if content.Text[len(content.InputText)-1] != r {
 			content.MistakesCount += 1
 		}
 	}
@@ -98,7 +98,7 @@ func (content Content) GetAccuracy() float32 {
 	if correctCount < 0 {
 		correctCount = 0
 	}
-	return float32(correctCount) / float32(len(content.InputText))
+	return float32(correctCount) / float32(len(content.InputText)) * 100
 }
 
 // Returns spent time from first input till now
