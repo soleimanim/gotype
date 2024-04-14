@@ -13,8 +13,9 @@ type ScreenStyle tcell.Style
 var ScreenStyleDefault ScreenStyle = ScreenStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset))
 
 type Screen struct {
-	screen    tcell.Screen
-	menuItems []menu.MenuItem
+	screen     tcell.Screen
+	menuItems  []menu.MenuItem
+	showCursor bool
 }
 
 // Initialize a new screen
@@ -27,7 +28,8 @@ type Screen struct {
 //   - error: nil if initializing screen is successful
 func NewScreen(style ScreenStyle, menuItems []menu.MenuItem) (Screen, error) {
 	screen := Screen{
-		menuItems: menuItems,
+		menuItems:  menuItems,
+		showCursor: true,
 	}
 	s, err := tcell.NewScreen()
 	if err != nil {
@@ -43,6 +45,14 @@ func NewScreen(style ScreenStyle, menuItems []menu.MenuItem) (Screen, error) {
 	screen.screen = s
 
 	return screen, nil
+}
+
+func (s *Screen) AddMenuItem(m menu.MenuItem) {
+	s.menuItems = append(s.menuItems, m)
+}
+
+func (s *Screen) ToggleCursor() {
+	s.showCursor = !s.showCursor
 }
 
 // Draw screen
@@ -85,7 +95,14 @@ func (s Screen) Draw(c *content.Content) {
 				}
 				s.screen.SetContent(x, y, ch, nil, tcell.Style(content.TextStyleError))
 			}
+		} else if index == len(c.InputText) && s.showCursor {
+			s.screen.SetContent(x, y, r, nil, tcell.Style(content.TextStyleCursor))
+			s.screen.SetCursorStyle(tcell.CursorStyleDefault)
+			s.screen.ShowCursor(x, y)
 		} else {
+			if !s.showCursor {
+				s.screen.HideCursor()
+			}
 			s.screen.SetContent(x, y, r, nil, tcell.Style(content.TextStylePlaceholder))
 		}
 
@@ -141,7 +158,7 @@ func drawInfo(screen tcell.Screen, y *int, c *content.Content) {
 
 	speedText := fmt.Sprintf(" Speed: %.2f WPS ", c.GetSpeed())
 	speedX := screenWith - len(speedText) - 2
-	drawText(screen, &speedX, y, speedText, content.TextStyleInfo3)
+	drawText(screen, &speedX, y, speedText, content.TextStyleInfo1)
 }
 
 func drawMenu(s Screen) {

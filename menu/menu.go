@@ -10,7 +10,7 @@ type MenuItemAction func(*content.Content)
 type MenuStyle tcell.Style
 
 var (
-	MenuStyleDefault MenuStyle = MenuStyle(tcell.StyleDefault.Background(tcell.ColorLightCyan).Foreground(tcell.ColorBlack))
+	MenuStyleDefault MenuStyle = MenuStyle(tcell.StyleDefault.Background(tcell.ColorGray).Foreground(tcell.ColorWhite))
 )
 
 type MenuItem struct {

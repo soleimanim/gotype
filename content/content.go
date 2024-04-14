@@ -13,6 +13,7 @@ var TextStyleInfo1 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.Col
 var TextStyleInfo2 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorLightBlue).Foreground(tcell.ColorDarkBlue))
 var TextStyleInfo3 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorPink).Foreground(tcell.ColorPurple))
 var TextStyleMain TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorWhite))
+var TextStyleCursor TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorBlack))
 var TextStyleError TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorRed).Foreground(tcell.ColorWhite))
 var TextStylePlaceholder TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorDarkGray))
 var TextStyleResult TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorSeaGreen))

@@ -26,6 +26,16 @@ func main() {
 			},
 		},
 	})
+	s.AddMenuItem(
+		menu.MenuItem{
+			Name:  "Toggle Cursor (Ctrl + O)",
+			Key:   tcell.KeyCtrlO,
+			Style: menu.MenuStyleDefault,
+			Action: func(c *content.Content) {
+				s.ToggleCursor()
+			},
+		},
+	)
 	if err != nil {
 		panic(err)
 	}
