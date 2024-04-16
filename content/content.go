@@ -13,7 +13,7 @@ var TextStyleInfo1 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.Col
 var TextStyleInfo2 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorLightBlue).Foreground(tcell.ColorDarkBlue))
 var TextStyleInfo3 TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorPink).Foreground(tcell.ColorPurple))
 var TextStyleMain TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorWhite))
-var TextStyleCursor TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorBlack))
+var TextStyleCursor TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorSeaGreen).Foreground(tcell.ColorNavajoWhite))
 var TextStyleError TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorRed).Foreground(tcell.ColorWhite))
 var TextStylePlaceholder TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorDarkGray))
 var TextStyleResult TextStyle = TextStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorSeaGreen))
@@ -25,9 +25,18 @@ const (
 	HighlightModeColorAndValue HighlightMode = "HighlightModeColorAndValue"
 )
 
+type TextMode int
+
+const (
+	TextModeParagraph TextMode = 0
+	TextModeWords     TextMode = 1
+)
+
 type Content struct {
 	Text      []rune
 	InputText []rune
+
+	TextMode TextMode
 
 	StartTime          time.Time
 	EndTime            time.Time
@@ -35,6 +44,8 @@ type Content struct {
 	Completed          bool
 	FinalSpeed         float32
 	ErrorHighlightMode HighlightMode
+
+	paragraphsCount int
 }
 
 // Initialize a new content struct
@@ -42,10 +53,13 @@ type Content struct {
 // Returns:
 //   - Content
 func NewContent() *Content {
-	return &Content{
-		Text:               []rune(randomdata.Paragraph()),
+	c := Content{
+		TextMode:           TextModeParagraph,
 		ErrorHighlightMode: HighlightModeOnlyColor,
+		paragraphsCount:    1,
 	}
+	c.Text = []rune(generateText(c))
+	return &c
 }
 
 // Add user input character
@@ -131,7 +145,7 @@ func (content Content) GetSpentSeconds() uint {
 
 // Reset content data
 func (c *Content) Reset() {
-	c.Text = []rune(randomdata.Paragraph())
+	c.Text = []rune(generateText(*c))
 	c.InputText = []rune{}
 	c.StartTime = time.Time{}
 	c.MistakesCount = 0
@@ -163,4 +177,34 @@ func (c *Content) ToggleErrorHighlightingMode() {
 	} else {
 		c.ErrorHighlightMode = HighlightModeColorAndValue
 	}
+}
+
+func (cnt *Content) SetParagraphsCount(c int) *Content {
+	cnt.paragraphsCount = c
+	cnt.Reset()
+	return cnt
+}
+func generateText(c Content) string {
+	if c.TextMode == TextModeParagraph {
+		str := ""
+		for i := range c.paragraphsCount {
+			str += randomdata.Paragraph()
+			if i != c.paragraphsCount-1 {
+				str += " "
+			}
+		}
+
+		return str
+	}
+
+	count := 18
+	s := ""
+	for i := range count {
+		w := randomdata.Noun()
+		s += w
+		if i != count-1 {
+			s += " "
+		}
+	}
+	return s
 }

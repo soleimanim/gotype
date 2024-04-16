@@ -16,6 +16,9 @@ type Screen struct {
 	screen     tcell.Screen
 	menuItems  []menu.MenuItem
 	showCursor bool
+
+	activeDialog Dialog
+	showDialog   bool
 }
 
 // Initialize a new screen
@@ -97,12 +100,13 @@ func (s Screen) Draw(c *content.Content) {
 			}
 		} else if index == len(c.InputText) && s.showCursor {
 			s.screen.SetContent(x, y, r, nil, tcell.Style(content.TextStyleCursor))
-			s.screen.SetCursorStyle(tcell.CursorStyleDefault)
-			s.screen.ShowCursor(x, y)
+			// s.screen.SetCursorStyle(tcell.CursorStyleDefault)
+			// Handle cursor by setting backround color because tcell does not support cursor color yet
+			// s.screen.ShowCursor(x, y)
 		} else {
-			if !s.showCursor {
-				s.screen.HideCursor()
-			}
+			// if !s.showCursor {
+			// s.screen.HideCursor()
+			// }
 			s.screen.SetContent(x, y, r, nil, tcell.Style(content.TextStylePlaceholder))
 		}
 
@@ -117,6 +121,10 @@ func (s Screen) Draw(c *content.Content) {
 	}
 	drawMenu(s)
 
+	if s.showDialog {
+		s.activeDialog.DrawDialogOnScreen(s.screen)
+	}
+
 	s.screen.Show()
 }
 
@@ -125,7 +133,16 @@ func (s Screen) ReadEvent() tcell.Event {
 	return s.screen.PollEvent()
 }
 
-func (s Screen) HandleEvent(event *tcell.EventKey, c *content.Content) {
+func (s *Screen) HandleEvent(event *tcell.EventKey, c *content.Content) {
+	if s.showDialog {
+		r := s.activeDialog.HandleEvent(event)
+		if r {
+			s.showDialog = false
+			s.activeDialog = Dialog{}
+		}
+		return
+	}
+
 	if (event.Key() == tcell.KeyBackspace || event.Key() == tcell.KeyBackspace2) && !c.IsCompleted() {
 		c.RemoveLastInput()
 		return
@@ -145,6 +162,14 @@ func (s Screen) HandleEvent(event *tcell.EventKey, c *content.Content) {
 	}
 }
 
+func (s *Screen) SetDialog(d Dialog) {
+	s.activeDialog = d
+	s.showDialog = true
+}
+
+func (s Screen) Fini() {
+	s.screen.Fini()
+}
 func drawInfo(screen tcell.Screen, y *int, c *content.Content) {
 	x := 0
 
