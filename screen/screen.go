@@ -117,7 +117,7 @@ func (s Screen) Draw(c *content.Content) {
 		y += 2
 		text := fmt.Sprintf("Your typing speed is %.2f WPS Accuracy: %.2f%%", c.GetSpeed(), c.GetAccuracy())
 		resultX := 0
-		drawText(s.screen, &resultX, &y, text, content.TextStyleResult)
+		DrawText(s.screen, text, &resultX, &y, tcell.Style(content.TextStyleResult))
 	}
 	drawMenu(s)
 
@@ -174,16 +174,16 @@ func drawInfo(screen tcell.Screen, y *int, c *content.Content) {
 	x := 0
 
 	timeSpentText := fmt.Sprintf(" Time: %d Seconds", c.GetSpentSeconds())
-	drawText(screen, &x, y, timeSpentText, content.TextStyleInfo1)
+	DrawText(screen, timeSpentText, &x, y, tcell.Style(content.TextStyleInfo1))
 
 	logoText := " GOTYPE "
 	screenWith, _ := screen.Size()
 	logoX := screenWith/2 - len(logoText)/2
-	drawText(screen, &logoX, y, logoText, content.TextStyleInfo2)
+	DrawText(screen, logoText, &logoX, y, tcell.Style(content.TextStyleInfo2))
 
 	speedText := fmt.Sprintf(" Speed: %.2f WPS ", c.GetSpeed())
 	speedX := screenWith - len(speedText) - 2
-	drawText(screen, &speedX, y, speedText, content.TextStyleInfo1)
+	DrawText(screen, speedText, &speedX, y, tcell.Style(content.TextStyleInfo3))
 }
 
 func drawMenu(s Screen) {
@@ -192,20 +192,7 @@ func drawMenu(s Screen) {
 	x := 0
 
 	for _, m := range s.menuItems {
-		drawText(s.screen, &x, &y, fmt.Sprintf(" %s ", m.Name), content.TextStyle(m.Style))
+		DrawText(s.screen, fmt.Sprintf(" %s ", m.Name), &x, &y, tcell.Style(m.Style))
 		x += 2
-	}
-}
-
-func drawText(screen tcell.Screen, x *int, y *int, text string, style content.TextStyle) {
-	screenWidth, _ := screen.Size()
-	if *x+len(text) > screenWidth-1 {
-		*y += 1
-		*x = 0
-	}
-
-	for _, r := range text {
-		screen.SetContent(*x, *y, r, nil, tcell.Style(style))
-		*x += 1
 	}
 }
