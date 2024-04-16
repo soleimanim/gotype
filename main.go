@@ -2,6 +2,7 @@ package main
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/soleimanim/gotype/content"
@@ -84,9 +85,11 @@ func main() {
 					s.HandleEvent(ev, c)
 				}
 			}
+			s.Draw(c)
 			go readInput(eventCh, s)
 		default:
 			s.Draw(c)
+			time.Sleep(time.Millisecond * 10)
 		}
 	}
 }
