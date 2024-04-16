@@ -70,16 +70,28 @@ func main() {
 
 	c := content.NewContent()
 
+	eventCh := make(chan tcell.Event, 0)
+	go readInput(eventCh, s)
+
 	for {
-		s.Draw(c)
-		event := s.ReadEvent()
-		switch ev := event.(type) {
-		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
-				return
-			} else {
-				s.HandleEvent(ev, c)
+		select {
+		case ev := <-eventCh:
+			switch ev := ev.(type) {
+			case *tcell.EventKey:
+				if ev.Key() == tcell.KeyEscape || ev.Key() == tcell.KeyCtrlC {
+					return
+				} else {
+					s.HandleEvent(ev, c)
+				}
 			}
+			go readInput(eventCh, s)
+		default:
+			s.Draw(c)
 		}
 	}
+}
+
+func readInput(ch chan tcell.Event, s screen.Screen) {
+	event := s.ReadEvent()
+	ch <- event
 }
