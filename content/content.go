@@ -84,6 +84,9 @@ func (content *Content) AddInput(r rune) {
 
 // Remove last input character
 func (content *Content) RemoveLastInput() {
+	if len(content.InputText) == 0 {
+		return
+	}
 	content.InputText = content.InputText[:len(content.InputText)-1]
 }
 
