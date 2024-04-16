@@ -19,14 +19,14 @@ func main() {
 				c.Reset()
 			},
 		},
-		{
-			Name:  "Toggle Error Highlighting Mode ^T",
-			Key:   tcell.KeyCtrlT,
-			Style: menu.MenuStyleDefault,
-			Action: func(c *content.Content) {
-				c.ToggleErrorHighlightingMode()
-			},
-		},
+		// {
+		// 	Name:  "Toggle Error Highlighting Mode ^T",
+		// 	Key:   tcell.KeyCtrlT,
+		// 	Style: menu.MenuStyleDefault,
+		// 	Action: func(c *content.Content) {
+		// 		c.ToggleErrorHighlightingMode()
+		// 	},
+		// },
 	})
 	s.AddMenuItem(
 		menu.MenuItem{
@@ -34,19 +34,7 @@ func main() {
 			Key:   tcell.KeyCtrlO,
 			Style: menu.MenuStyleDefault,
 			Action: func(c *content.Content) {
-				dialog := screen.NewDialog("This is my first dialog", "this dialog must be completely ok and show over screen and wrap texts if needed", []screen.DialogActionButton{
-					{
-						Label: "OK (^O)",
-						Key:   tcell.KeyCtrlO,
-						Action: func(_ string) bool {
-							return true
-						},
-					},
-				})
-				dialog.SetInputLabel("Test:")
-				dialog.SetInputFieldEnabled()
 				s.ToggleCursor()
-				s.SetDialog(dialog)
 			},
 		},
 	)
