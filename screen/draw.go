@@ -4,8 +4,8 @@ import "github.com/gdamore/tcell/v2"
 
 func DrawText(screen tcell.Screen, s string, x *int, y *int, style tcell.Style) {
 	for _, r := range s {
-		*x++
 		screen.SetContent(*x, *y, r, nil, style)
+		*x++
 	}
 }
 
