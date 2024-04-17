@@ -66,7 +66,7 @@ func (s *Screen) ToggleCursor() {
 func (s Screen) Draw(c *content.Content) {
 	s.screen.Clear()
 
-	y := 1
+	y := 0
 	drawInfo(s.screen, &y, c)
 
 	y += 2
@@ -74,43 +74,7 @@ func (s Screen) Draw(c *content.Content) {
 
 	screenWidth, _ := s.screen.Size()
 	for index, r := range c.Text {
-		// wrap text to next line
-		if r == ' ' && index < len(c.Text)-1 {
-			// check if we have enough room for next world
-			for i, n := range c.Text[index+1:] {
-				if n == ' ' {
-					if x+i > screenWidth-2 {
-						y += 1
-						x = 0
-					}
-					break
-				}
-			}
-		}
-		if len(c.InputText) >= index+1 {
-			input := c.InputText[index]
-			if input == r {
-				s.screen.SetContent(x, y, input, nil, tcell.Style(content.TextStyleMain))
-			} else {
-				ch := input
-				if c.ErrorHighlightMode == content.HighlightModeOnlyColor {
-					ch = r
-				}
-				s.screen.SetContent(x, y, ch, nil, tcell.Style(content.TextStyleError))
-			}
-		} else if index == len(c.InputText) && s.showCursor {
-			s.screen.SetContent(x, y, r, nil, tcell.Style(content.TextStyleCursor))
-			// s.screen.SetCursorStyle(tcell.CursorStyleDefault)
-			// Handle cursor by setting backround color because tcell does not support cursor color yet
-			// s.screen.ShowCursor(x, y)
-		} else {
-			// if !s.showCursor {
-			// s.screen.HideCursor()
-			// }
-			s.screen.SetContent(x, y, r, nil, tcell.Style(content.TextStylePlaceholder))
-		}
-
-		x++
+		s.drawMainTextRune(&x, &y, index, r, *c, screenWidth)
 	}
 
 	if c.IsCompleted() {
@@ -126,6 +90,49 @@ func (s Screen) Draw(c *content.Content) {
 	}
 
 	s.screen.Show()
+}
+
+func (s Screen) drawMainTextRune(x *int, y *int, index int, r rune, c content.Content, width int) {
+	// wrap text to next line
+	if r == ' ' && index < len(c.Text)-1 {
+		// check if we have enough room for next world
+		for i, n := range c.Text[index+1:] {
+			if n == ' ' {
+				if *x+i > width-2 {
+					defer func() {
+						*y += 1
+						*x = 0
+					}()
+				}
+				break
+			}
+		}
+	}
+
+	if len(c.InputText) >= index+1 {
+		input := c.InputText[index]
+		if input == r {
+			s.screen.SetContent(*x, *y, input, nil, tcell.Style(content.TextStyleMain))
+		} else {
+			ch := input
+			if c.ErrorHighlightMode == content.HighlightModeOnlyColor {
+				ch = r
+			}
+			s.screen.SetContent(*x, *y, ch, nil, tcell.Style(content.TextStyleError))
+		}
+	} else if index == len(c.InputText) && s.showCursor {
+		s.screen.SetContent(*x, *y, r, nil, tcell.Style(content.TextStyleCursor))
+		// s.screen.SetCursorStyle(tcell.CursorStyleDefault)
+		// Handle cursor by setting backround color because tcell does not support cursor color yet
+		// s.screen.ShowCursor(x, y)
+	} else {
+		// if !s.showCursor {
+		// s.screen.HideCursor()
+		// }
+		s.screen.SetContent(*x, *y, r, nil, tcell.Style(content.TextStylePlaceholder))
+	}
+
+	*x++
 }
 
 // Read input events
@@ -182,7 +189,7 @@ func drawInfo(screen tcell.Screen, y *int, c *content.Content) {
 	DrawText(screen, logoText, &logoX, y, tcell.Style(content.TextStyleInfo2))
 
 	speedText := fmt.Sprintf(" Speed: %.2f WPS ", c.GetSpeed())
-	speedX := screenWith - len(speedText) - 2
+	speedX := screenWith - len(speedText)
 	DrawText(screen, speedText, &speedX, y, tcell.Style(content.TextStyleInfo3))
 }
 
