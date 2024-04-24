@@ -96,8 +96,10 @@ func (s Screen) drawMainTextRune(x *int, y *int, index int, r rune, c content.Co
 	// wrap text to next line
 	if r == ' ' && index < len(c.Text)-1 {
 		// check if we have enough room for next world
+		spaceFound := false
 		for i, n := range c.Text[index+1:] {
 			if n == ' ' {
+				spaceFound = true
 				if *x+i > width-2 {
 					defer func() {
 						*y += 1
@@ -106,6 +108,12 @@ func (s Screen) drawMainTextRune(x *int, y *int, index int, r rune, c content.Co
 				}
 				break
 			}
+		}
+		if !spaceFound && len(c.Text[index:])+*x > width-2 {
+			defer func() {
+				*x = 0
+				*y += 1
+			}()
 		}
 	}
 
