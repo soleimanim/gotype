@@ -10,3 +10,22 @@
 **GoType** is a convenient terminal application for honing keyboard typing skills and conducting typing speed tests. Enjoy daily practice sessions free from intrusive advertisements.
 
 <hr />
+
+### Features
+
+- **Set Paragraph Count (Ctrl + P):** Adjust the number of paragraphs to generate for typing text.
+- **Toggle Cursor (Ctrl + O):** Enable or disable the cursor.
+- **Retry (Ctrl + R):** Restart the typing test.
+
+### TODO
+
+- [ ] Enhance text generation
+- [ ] Add replay typing feature
+- [ ] Implement save results feature
+- [ ] Implement compare results feature
+
+### Contribution
+
+All contributions are welcome! Whether you're interested in fixing a bug, adding a new feature, or improving the documentation, we appreciate your help in making our project better.
+
+No contribution is too small, and every contribution is appreciated.
