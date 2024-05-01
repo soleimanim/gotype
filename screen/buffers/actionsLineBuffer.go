@@ -1,8 +1,6 @@
 package buffers
 
 import (
-	"log"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/soleimanim/gotype/screen"
 )

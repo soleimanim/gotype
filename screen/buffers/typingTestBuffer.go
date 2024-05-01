@@ -2,12 +2,10 @@ package buffers
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/Pallinder/go-randomdata"
 	"github.com/gdamore/tcell/v2"
-	"github.com/soleimanim/gotype/logger"
 	"github.com/soleimanim/gotype/screen"
 	"github.com/soleimanim/gotype/styles"
 )

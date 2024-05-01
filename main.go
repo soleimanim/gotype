@@ -51,7 +51,3 @@ func main() {
 		window.Draw()
 	}
 }
-
-func handleCommandLineArgs() {
-
-}

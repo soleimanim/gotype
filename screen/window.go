@@ -2,7 +2,6 @@ package screen
 
 import (
 	"errors"
-	"log"
 
 	"github.com/gdamore/tcell/v2"
 )
