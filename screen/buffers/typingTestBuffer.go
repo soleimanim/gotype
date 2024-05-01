@@ -7,6 +7,7 @@ import (
 
 	"github.com/Pallinder/go-randomdata"
 	"github.com/gdamore/tcell/v2"
+	"github.com/soleimanim/gotype/logger"
 	"github.com/soleimanim/gotype/screen"
 	"github.com/soleimanim/gotype/styles"
 )
@@ -79,8 +80,6 @@ func NewTypingTestBuffer(mode TestMode) TypingTestBuffer {
 }
 
 func (b *TypingTestBuffer) Draw() {
-	log.Println("drawing typing test buffer")
-
 	screenWidth, _ := b.screen.Size()
 	b.y = 5
 	startX := 0
@@ -183,7 +182,6 @@ func (b *TypingTestBuffer) Replay() {
 
 			b.applyKeyEvent(ev.Key)
 			b.window.Draw()
-			log.Println("event sent to buffer from replay session")
 		}
 	}()
 }
@@ -198,7 +196,6 @@ func (b *TypingTestBuffer) applyKeyEvent(ev *tcell.EventKey) {
 	if r := ev.Rune(); r != 0 {
 		// character
 		b.input = b.input + string(r)
-		log.Println("input after appending rune:", b.input)
 
 		// check mistakes
 		index := len(b.input) - 1

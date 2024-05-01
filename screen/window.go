@@ -87,7 +87,6 @@ func (w *Window) RemoveBuffer(i int) {
 }
 
 func (w *Window) ReplaceBuffer(id int, b Buffer) {
-	log.Println("replacing buffer on window:", w)
 	w.RemoveBuffer(id)
 	w.AppendBuffer(b)
 }

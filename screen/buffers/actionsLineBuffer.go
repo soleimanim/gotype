@@ -138,7 +138,6 @@ func (b *ActionsLineBuffer) SetWindow(w *screen.Window) {
 
 func (b *ActionsLineBuffer) changeTypingTestMode(mode TestMode) {
 	buffer := NewTypingTestBuffer(mode)
-	log.Println("b.window in buffer is", b.window, b.screen)
 	b.window.ReplaceBuffer(TYPING_BUFFER_IDENTIFIER, &buffer)
 }
 
