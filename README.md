@@ -17,6 +17,11 @@
 - **Toggle Cursor (Ctrl + O):** Enable or disable the cursor.
 - **Retry (Ctrl + R):** Restart the typing test.
 
+### Command Line Options
+| Argument        | Description                                  | Example                  |
+|-----------------|----------------------------------------------|--------------------------|
+| `--logFile`     | Path to the log file (Optional)              | `--logFile data.txt`     |
+
 ### TODO
 
 - [ ] Enhance text generation
