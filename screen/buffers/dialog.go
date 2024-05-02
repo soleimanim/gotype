@@ -3,7 +3,6 @@ package buffers
 import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/soleimanim/gotype/screen"
-	"github.com/soleimanim/gotype/styles"
 )
 
 const DIALOG_BUFFER_ID = 3
@@ -71,11 +70,20 @@ func (b DialogBuffer) Draw() {
 
 	x := screenWidth/2 - width/2
 	y := screenHeight/2 - height/2
-	b.drawBorder(width, height, x, y)
+	screen.DrawBox(screen.BoxPosition{
+		X: x,
+		Y: y,
+	}, screen.BoxSize{
+		Width:  width,
+		Height: height,
+	}, b.screen, screen.BoxTitle{
+		Title:     b.Title,
+		Alignment: screen.TextAlignmentLeft,
+	}, tcell.ColorReset)
 
 	if titleLen < containerWidth {
-		x := containerX + containerWidth/2 - titleLen/2 - 1
-		screen.DrawText(b.screen, " "+b.Title+" ", &x, &y, b.TitleStyle)
+		// x := containerX + containerWidth/2 - titleLen/2 - 1
+		// screen.DrawText(b.screen, " "+b.Title+" ", &x, &y, b.TitleStyle)
 		y += DialogVerticalPadding
 	} else {
 		y += DialogVerticalPadding
@@ -109,27 +117,6 @@ func (b DialogBuffer) HandleKeyEvent(ev *tcell.EventKey) {
 }
 func (b *DialogBuffer) SetWindow(w *screen.Window) {
 	b.window = w
-}
-
-func (b DialogBuffer) drawBorder(w int, h int, x int, y int) {
-	b.screen.SetContent(x, y, '╭', nil, styles.BorderStyle)
-	b.screen.SetContent(x+w-1, y, '╮', nil, styles.BorderStyle)
-	b.screen.SetContent(x, y+h-1, '╰', nil, styles.BorderStyle)
-	b.screen.SetContent(x+w-1, y+h-1, '╯', nil, styles.BorderStyle)
-	for i := x + 1; i < x+w-1; i += 1 {
-		b.screen.SetContent(i, y, '─', nil, styles.BorderStyle)
-		b.screen.SetContent(i, y+h-1, '─', nil, styles.BorderStyle)
-	}
-	for i := y + 1; i < y+h-1; i += 1 {
-		b.screen.SetContent(x, i, '│', nil, styles.BorderStyle)
-		b.screen.SetContent(x+w-1, i, '│', nil, styles.BorderStyle)
-	}
-	for i := x + 2; i < x+w-2; i += 1 {
-		for j := y + 2; j < y+h-2; j += 1 {
-			b.screen.SetContent(i, j, ' ', nil, styles.DialogBackgroundStyle)
-		}
-	}
-
 }
 
 func (b DialogBuffer) drawString(s string, containerX int, y *int, containerWidth int, style tcell.Style) {
