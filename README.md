@@ -24,9 +24,9 @@
 
 ### TODO
 
+- [x] Add replay typing feature
+- [x] Implement save results feature
 - [ ] Enhance text generation
-- [ ] Add replay typing feature
-- [ ] Implement save results feature
 - [ ] Implement compare results feature
 
 ### Contribution
