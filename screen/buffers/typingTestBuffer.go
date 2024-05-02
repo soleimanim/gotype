@@ -6,6 +6,8 @@ import (
 
 	"github.com/Pallinder/go-randomdata"
 	"github.com/gdamore/tcell/v2"
+	"github.com/soleimanim/gotype/db"
+	"github.com/soleimanim/gotype/logger"
 	"github.com/soleimanim/gotype/screen"
 	"github.com/soleimanim/gotype/styles"
 )
@@ -31,7 +33,9 @@ type TypingEvent struct {
 }
 
 type TypingTestBuffer struct {
-	Mode TestMode
+	Mode        TestMode
+	Repository  db.Repository[db.TypingTestModel]
+	recentTests []db.TypingTestModel
 
 	y        int
 	screen   tcell.Screen
@@ -49,7 +53,7 @@ type TypingTestBuffer struct {
 	isFinished bool
 }
 
-func NewTypingTestBuffer(mode TestMode) TypingTestBuffer {
+func NewTypingTestBuffer(mode TestMode, repository db.Repository[db.TypingTestModel]) TypingTestBuffer {
 	wordsCount := 25
 	switch mode {
 	case TestMode25Words:
@@ -67,14 +71,18 @@ func NewTypingTestBuffer(mode TestMode) TypingTestBuffer {
 		testText += " " + randomdata.Noun()
 	}
 
-	return TypingTestBuffer{
-		Mode: mode,
+	b := TypingTestBuffer{
+		Mode:       mode,
+		Repository: repository,
 
 		y:        5,
 		screen:   nil,
 		input:    "",
 		testText: testText,
 	}
+	b.updateRecentTests()
+
+	return b
 }
 
 func (b *TypingTestBuffer) Draw() {
@@ -122,6 +130,13 @@ func (b *TypingTestBuffer) Draw() {
 		screen.DrawText(b.screen, " X ", &x, &y, tcell.StyleDefault.Background(tcell.ColorLightPink).Foreground(tcell.ColorRed))
 		screen.DrawText(b.screen, " to cancel replaying. ", &x, &y, tcell.StyleDefault.Foreground(tcell.ColorLightGray))
 	}
+
+	b.y += 3
+	for _, test := range b.recentTests {
+		x := 5
+		screen.DrawText(b.screen, fmt.Sprintf("Speed: %.2f  Acc: %.2f  Words Count: %d  Mistakes Count %d", test.Speed, test.Accuracy, test.WordsCount, test.MistakesCount), &x, &b.y, tcell.StyleDefault.Foreground(tcell.ColorOrange).Background(tcell.ColorReset))
+		b.y += 1
+	}
 }
 func (b *TypingTestBuffer) GetID() int {
 	return TYPING_BUFFER_IDENTIFIER
@@ -154,6 +169,7 @@ func (b *TypingTestBuffer) HandleKeyEvent(ev *tcell.EventKey) {
 
 	if len(b.input) >= len(b.testText) {
 		b.isFinished = true
+		b.onFinished()
 		b.showTestResult()
 		return
 	}
@@ -181,6 +197,8 @@ func (b *TypingTestBuffer) Replay() {
 			b.applyKeyEvent(ev.Key)
 			b.window.Draw()
 		}
+		b.isReplaying = false
+		b.showTestResult()
 	}()
 }
 
@@ -279,7 +297,7 @@ func (b *TypingTestBuffer) showTestResult() {
 				Style: tcell.StyleDefault.Background(tcell.ColorWhite).Background(tcell.ColorSkyblue),
 				Action: func() bool {
 					b.window.RemoveBuffer(TYPING_BUFFER_IDENTIFIER)
-					newBuffer := NewTypingTestBuffer(b.Mode)
+					newBuffer := NewTypingTestBuffer(b.Mode, b.Repository)
 					b.window.AppendBuffer(&newBuffer)
 					return true
 				},
@@ -298,4 +316,43 @@ func (b *TypingTestBuffer) showTestResult() {
 	}
 
 	b.window.AppendBuffer(&dialog)
+}
+
+func (b *TypingTestBuffer) onFinished() {
+	logger.Println("TypingTestBuffer OnFinished called, saving result to database")
+	model := db.TypingTestModel{
+		Speed:         b.speed,
+		Accuracy:      b.accuracy,
+		WordsCount:    b.getWordsCount(b.Mode),
+		MistakesCount: uint(b.mistakesCount),
+	}
+	err := b.Repository.Create(&model)
+	if err != nil {
+		logger.Println("Error saving typing test result to database", err)
+		return
+	}
+	b.updateRecentTests()
+}
+
+func (b TypingTestBuffer) getWordsCount(mode TestMode) uint {
+	switch mode {
+	case TestMode25Words:
+		return 25
+	case TestMode50Words:
+		return 50
+	case TestMode75Words:
+		return 75
+	case TestMode100Words:
+		return 100
+	}
+
+	return 25
+}
+
+func (b *TypingTestBuffer) updateRecentTests() {
+	models, err := b.Repository.GetAll(10, 0)
+	logger.Println("Read recent typing tests from database", len(models), err)
+	if err == nil {
+		b.recentTests = models
+	}
 }

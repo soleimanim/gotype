@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/soleimanim/gotype/db"
 	"github.com/soleimanim/gotype/logger"
 	"github.com/soleimanim/gotype/screen"
 	"github.com/soleimanim/gotype/screen/buffers"
@@ -27,12 +28,22 @@ func main() {
 		}
 	}
 
+	// Connect to database
+	dbHandler := db.NewDBHandler()
+	err := dbHandler.Open()
+	if err != nil {
+		// TODO: handle the error
+		panic(err)
+	}
+	defer dbHandler.Close()
+
+	typingTestRepository := db.NewTypingTestRepository(dbHandler.DB)
 	statusBuffer := buffers.NewStatusLineBuffer()
-	actionsBuffer := buffers.NewActionsLineBuffer()
-	typingTestBuffer := buffers.NewTypingTestBuffer(buffers.TestMode25Words)
+	actionsBuffer := buffers.NewActionsLineBuffer(typingTestRepository)
+	typingTestBuffer := buffers.NewTypingTestBuffer(buffers.TestMode25Words, typingTestRepository)
 
 	window := screen.NewWindow()
-	err := window.Init(&statusBuffer)
+	err = window.Init(&statusBuffer)
 	if err != nil {
 		panic(err)
 	}

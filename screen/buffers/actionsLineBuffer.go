@@ -2,6 +2,7 @@ package buffers
 
 import (
 	"github.com/gdamore/tcell/v2"
+	"github.com/soleimanim/gotype/db"
 	"github.com/soleimanim/gotype/screen"
 )
 
@@ -23,14 +24,17 @@ func (s *ActionsLineMenuSwitch) GetKey() tcell.Key {
 }
 
 type ActionsLineBuffer struct {
-	screen tcell.Screen
-	window *screen.Window
+	TypingTestRepository db.Repository[db.TypingTestModel]
+	screen               tcell.Screen
+	window               *screen.Window
 
 	menuItems []ActionsLineMenu
 }
 
-func NewActionsLineBuffer() *ActionsLineBuffer {
-	b := &ActionsLineBuffer{}
+func NewActionsLineBuffer(typingTestRepository db.Repository[db.TypingTestModel]) *ActionsLineBuffer {
+	b := &ActionsLineBuffer{
+		TypingTestRepository: typingTestRepository,
+	}
 	testModeMenu := make([]*ActionsLineMenuSwitch, 0)
 	menu25Words := &ActionsLineMenuSwitch{
 		Label:    " 25 Words ",
@@ -90,13 +94,19 @@ func NewActionsLineBuffer() *ActionsLineBuffer {
 
 func (b *ActionsLineBuffer) Draw() {
 	screenWidth, screenHeight := b.screen.Size()
-	y := screenHeight - 1
+	y := screenHeight - 2
+
+	text := "Feedback At: https://github.com/soleimanim/gotype"
+	x := screenWidth - len(text)
+	screen.DrawText(b.screen, text, &x, &y, tcell.StyleDefault.Foreground(tcell.ColorLightGreen))
+
+	y += 1
 	for i := range screenWidth {
 		b.screen.SetContent(i, y, ' ', nil, tcell.StyleDefault.Background(tcell.NewRGBColor(238, 234, 211)))
 	}
 
 	// draw menuItems
-	x := 0
+	x = 0
 	bgStyle := tcell.StyleDefault.Background(tcell.ColorLightSkyBlue).Foreground(tcell.ColorWhite)
 	for i, m := range b.menuItems {
 		switch menu := m.(type) {
@@ -135,7 +145,7 @@ func (b *ActionsLineBuffer) SetWindow(w *screen.Window) {
 }
 
 func (b *ActionsLineBuffer) changeTypingTestMode(mode TestMode) {
-	buffer := NewTypingTestBuffer(mode)
+	buffer := NewTypingTestBuffer(mode, b.TypingTestRepository)
 	b.window.ReplaceBuffer(TYPING_BUFFER_IDENTIFIER, &buffer)
 }
 
