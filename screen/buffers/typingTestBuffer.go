@@ -33,6 +33,9 @@ type TypingEvent struct {
 }
 
 type TypingTestBuffer struct {
+	Size     screen.BufferSize
+	Position screen.BufferPosition
+
 	Mode        TestMode
 	Repository  db.Repository[db.TypingTestModel]
 	recentTests []db.TypingTestModel
@@ -53,7 +56,18 @@ type TypingTestBuffer struct {
 	isFinished bool
 }
 
-func NewTypingTestBuffer(mode TestMode, repository db.Repository[db.TypingTestModel]) TypingTestBuffer {
+func GetTypingTestBufferPositionAndSize(s tcell.Screen) (screen.BufferPosition, screen.BufferSize) {
+	w, h := s.Size()
+	return screen.BufferPosition{
+			X: w / 4,
+			Y: 0,
+		}, screen.BufferSize{
+			Width:  w * 3 / 4,
+			Height: h,
+		}
+}
+
+func NewTypingTestBuffer(position screen.BufferPosition, size screen.BufferSize, mode TestMode, repository db.Repository[db.TypingTestModel]) TypingTestBuffer {
 	wordsCount := 25
 	switch mode {
 	case TestMode25Words:
@@ -72,6 +86,9 @@ func NewTypingTestBuffer(mode TestMode, repository db.Repository[db.TypingTestMo
 	}
 
 	b := TypingTestBuffer{
+		Size:     size,
+		Position: position,
+
 		Mode:       mode,
 		Repository: repository,
 
@@ -80,15 +97,18 @@ func NewTypingTestBuffer(mode TestMode, repository db.Repository[db.TypingTestMo
 		input:    "",
 		testText: testText,
 	}
-	b.updateRecentTests()
 
 	return b
 }
 
 func (b *TypingTestBuffer) Draw() {
-	screenWidth, _ := b.screen.Size()
-	b.y = 5
-	startX := 0
+	screen.DrawBox(b.Position, b.Size, b.screen, screen.BoxTitle{
+		Title:     "Typing Test",
+		Alignment: screen.TextAlignmentLeft,
+	}, tcell.ColorReset)
+
+	b.y = b.Position.Y + 1
+	startX := b.Position.X + 2
 	for i, r := range b.testText {
 		style := styles.TextPlaceHolderStyle
 		if len(b.input) > i {
@@ -107,9 +127,9 @@ func (b *TypingTestBuffer) Draw() {
 			remainingText := b.testText[i+1:]
 			for j, rr := range remainingText {
 				if rr == ' ' {
-					if startX+j+1 > screenWidth {
+					if startX+j+2 > b.Position.X+b.Size.Width {
 						b.y += 1
-						startX = 0
+						startX = b.Position.X + 2
 					}
 					break
 				}
@@ -130,14 +150,8 @@ func (b *TypingTestBuffer) Draw() {
 		screen.DrawText(b.screen, " X ", &x, &y, tcell.StyleDefault.Background(tcell.ColorLightPink).Foreground(tcell.ColorRed))
 		screen.DrawText(b.screen, " to cancel replaying. ", &x, &y, tcell.StyleDefault.Foreground(tcell.ColorLightGray))
 	}
-
-	b.y += 3
-	for _, test := range b.recentTests {
-		x := 5
-		screen.DrawText(b.screen, fmt.Sprintf("Speed: %.2f  Acc: %.2f  Words Count: %d  Mistakes Count %d", test.Speed, test.Accuracy, test.WordsCount, test.MistakesCount), &x, &b.y, tcell.StyleDefault.Foreground(tcell.ColorOrange).Background(tcell.ColorReset))
-		b.y += 1
-	}
 }
+
 func (b *TypingTestBuffer) GetID() int {
 	return TYPING_BUFFER_IDENTIFIER
 }
@@ -297,7 +311,7 @@ func (b *TypingTestBuffer) showTestResult() {
 				Style: tcell.StyleDefault.Background(tcell.ColorWhite).Background(tcell.ColorSkyblue),
 				Action: func() bool {
 					b.window.RemoveBuffer(TYPING_BUFFER_IDENTIFIER)
-					newBuffer := NewTypingTestBuffer(b.Mode, b.Repository)
+					newBuffer := NewTypingTestBuffer(b.Position, b.Size, b.Mode, b.Repository)
 					b.window.AppendBuffer(&newBuffer)
 					return true
 				},
@@ -331,7 +345,15 @@ func (b *TypingTestBuffer) onFinished() {
 		logger.Println("Error saving typing test result to database", err)
 		return
 	}
-	b.updateRecentTests()
+	rb := b.window.GetBufferByID(RECENT_TESTS_BUFFER_ID)
+	if rb != nil {
+		buffer, ok := rb.(*RecentTestsBuffer)
+		if !ok {
+			return
+		}
+		buffer.Update()
+
+	}
 }
 
 func (b TypingTestBuffer) getWordsCount(mode TestMode) uint {
@@ -347,12 +369,4 @@ func (b TypingTestBuffer) getWordsCount(mode TestMode) uint {
 	}
 
 	return 25
-}
-
-func (b *TypingTestBuffer) updateRecentTests() {
-	models, err := b.Repository.GetAll(10, 0)
-	logger.Println("Read recent typing tests from database", len(models), err)
-	if err == nil {
-		b.recentTests = models
-	}
 }

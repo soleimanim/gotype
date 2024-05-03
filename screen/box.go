@@ -7,16 +7,6 @@ import (
 	"github.com/soleimanim/gotype/styles"
 )
 
-type BoxSize struct {
-	Width  int
-	Height int
-}
-
-type BoxPosition struct {
-	X int
-	Y int
-}
-
 type TextAlignment string
 
 const (
@@ -30,7 +20,7 @@ type BoxTitle struct {
 	Alignment TextAlignment
 }
 
-func DrawBox(position BoxPosition, size BoxSize, screen tcell.Screen, title BoxTitle, bgColor tcell.Color) {
+func DrawBox(position BufferPosition, size BufferSize, screen tcell.Screen, title BoxTitle, bgColor tcell.Color) {
 	borderStyle := styles.BorderStyle.Background(bgColor)
 	// corners
 	screen.SetContent(position.X, position.Y, '╭', nil, borderStyle)

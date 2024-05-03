@@ -70,10 +70,10 @@ func (b DialogBuffer) Draw() {
 
 	x := screenWidth/2 - width/2
 	y := screenHeight/2 - height/2
-	screen.DrawBox(screen.BoxPosition{
+	screen.DrawBox(screen.BufferPosition{
 		X: x,
 		Y: y,
-	}, screen.BoxSize{
+	}, screen.BufferSize{
 		Width:  width,
 		Height: height,
 	}, b.screen, screen.BoxTitle{

@@ -38,20 +38,32 @@ func main() {
 	defer dbHandler.Close()
 
 	typingTestRepository := db.NewTypingTestRepository(dbHandler.DB)
-	statusBuffer := buffers.NewStatusLineBuffer()
-	actionsBuffer := buffers.NewActionsLineBuffer(typingTestRepository)
-	typingTestBuffer := buffers.NewTypingTestBuffer(buffers.TestMode25Words, typingTestRepository)
+	// statusBuffer := buffers.NewStatusLineBuffer()
+	// actionsBuffer := buffers.NewActionsLineBuffer(typingTestRepository)
 
 	window := screen.NewWindow()
-	err = window.Init(&statusBuffer)
+	err = window.Init()
 	if err != nil {
 		panic(err)
 	}
 	defer window.Close()
 
-	window.AppendBuffer(actionsBuffer)
-	window.AppendBuffer(&typingTestBuffer)
+	// window.AppendBuffer(actionsBuffer)
 
+	screenWidth, screenHeight := window.Screen.Size()
+	recentTestBuffer := buffers.NewRecentTestsBuffer(screen.BufferPosition{
+		X: 0,
+		Y: 0,
+	}, screen.BufferSize{
+		Width:  screenWidth / 4,
+		Height: screenHeight,
+	}, typingTestRepository)
+	recentTestBuffer.Update()
+	window.AppendBuffer(&recentTestBuffer)
+
+	ttbPos, ttbSize := buffers.GetTypingTestBufferPositionAndSize(window.Screen)
+	typingTestBuffer := buffers.NewTypingTestBuffer(ttbPos, ttbSize, buffers.TestMode25Words, typingTestRepository)
+	window.AppendBuffer(&typingTestBuffer)
 	window.Draw()
 
 	for {

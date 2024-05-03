@@ -7,7 +7,7 @@ import (
 )
 
 type Window struct {
-	screen  tcell.Screen
+	Screen  tcell.Screen
 	buffers []Buffer
 }
 
@@ -22,7 +22,7 @@ func NewWindow() Window {
 //
 // Returns:
 //   - error: nil in case of success
-func (w *Window) Init(mainBuffer Buffer) error {
+func (w *Window) Init() error {
 	if len(w.buffers) > 0 {
 		return errors.New("window is already initialized")
 	}
@@ -38,10 +38,9 @@ func (w *Window) Init(mainBuffer Buffer) error {
 	screen.SetStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset))
 
 	screen.Clear()
-	w.screen = screen
+	w.Screen = screen
 
 	w.buffers = make([]Buffer, 0)
-	w.AppendBuffer(mainBuffer)
 
 	return nil
 }
@@ -51,11 +50,11 @@ func (w Window) Draw() error {
 		return errors.New("no buffer to draw")
 	}
 
-	w.screen.Clear()
+	w.Screen.Clear()
 	for _, b := range w.buffers {
 		b.Draw()
 	}
-	w.screen.Show()
+	w.Screen.Show()
 
 	return nil
 }
@@ -65,7 +64,7 @@ func (w Window) Draw() error {
 // Parameters:
 //   - b: buffer to add
 func (w *Window) AppendBuffer(b Buffer) {
-	b.SetScreen(w.screen)
+	b.SetScreen(w.Screen)
 	b.SetWindow(w)
 	w.buffers = append(w.buffers, b)
 }
@@ -95,7 +94,7 @@ func (w *Window) ReplaceBuffer(id int, b Buffer) {
 // Returns:
 //   - bool: terminate signal received
 func (w Window) HandleEvents() bool {
-	event := w.screen.PollEvent()
+	event := w.Screen.PollEvent()
 	switch ev := event.(type) {
 	case *tcell.EventKey:
 		if ev.Key() == tcell.KeyCtrlC {
@@ -121,5 +120,5 @@ func (w Window) GetBufferByID(id int) Buffer {
 
 // Close the window
 func (w Window) Close() {
-	w.screen.Fini()
+	w.Screen.Fini()
 }
