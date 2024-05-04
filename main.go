@@ -56,10 +56,20 @@ func main() {
 		Y: 0,
 	}, screen.BufferSize{
 		Width:  screenWidth / 4,
-		Height: screenHeight,
+		Height: screenHeight / 2,
 	}, typingTestRepository)
 	recentTestBuffer.Update()
 	window.AppendBuffer(&recentTestBuffer)
+
+	statsBuffer := buffers.NewStatsBuffer(screen.BufferPosition{
+		X: 0,
+		Y: screenHeight / 2,
+	}, screen.BufferSize{
+		Width:  screenWidth / 4,
+		Height: screenHeight / 2,
+	}, typingTestRepository)
+	statsBuffer.Update()
+	window.AppendBuffer(&statsBuffer)
 
 	ttbPos, ttbSize := buffers.GetTypingTestBufferPositionAndSize(window.Screen)
 	typingTestBuffer := buffers.NewTypingTestBuffer(ttbPos, ttbSize, buffers.TestMode25Words, typingTestRepository)

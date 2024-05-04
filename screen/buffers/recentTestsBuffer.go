@@ -140,7 +140,6 @@ func (b *RecentTestsBuffer) Update() {
 
 func (b RecentTestsBuffer) normalize(num, minNum, maxNum float32) float32 {
 	n := ((num - minNum) / (maxNum - minNum))
-	logger.Println("calculating normalozation", num, minNum, maxNum, n)
 	return n
 }
 

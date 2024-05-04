@@ -1,9 +1,12 @@
 package db
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/soleimanim/gotype/logger"
 )
 
 type TypingTestModel struct {
@@ -46,4 +49,80 @@ func (r *TypingTestRepository) GetAll(limit int, offset int) ([]TypingTestModel,
 	}
 
 	return result, nil
+}
+
+func (r *TypingTestRepository) CountAllWhere(conditions string) (int, error) {
+	where := ""
+	if conditions != "" {
+		where = "where " + conditions
+	}
+	rows, err := r.db.Query("SELECT COUNT(*) FROM " + TABLE_TYPING_TESTS + where)
+	if err != nil {
+		logger.Println("Error reading count from database", err)
+		return 0, err
+	}
+	if rows.Next() {
+		var count int
+		rows.Scan(&count)
+		return count, nil
+	}
+
+	return 0, errors.New("could not read count from database")
+}
+func (r *TypingTestRepository) MaxWhere(field string, query string) (any, error) {
+	where := ""
+	if query != "" {
+		where = "WHERE " + query
+	}
+	rows, err := r.db.Query(fmt.Sprintf("SELECT MAX(%s) FROM %s %s", field, TABLE_TYPING_TESTS, where))
+	if err != nil {
+		logger.Println("Error finding max value", err)
+		return 0, err
+	}
+
+	if rows.Next() {
+		var maxValue any
+		rows.Scan(&maxValue)
+		return maxValue, nil
+	}
+	return 0, errors.New("could not fetch database query result")
+}
+
+func (r *TypingTestRepository) Sum(field string, query string) (any, error) {
+	where := ""
+	if query != "" {
+		where = "WHERE " + query
+	}
+	rows, err := r.db.Query(fmt.Sprintf("SELECT SUM(%s) FROM %s %s", field, TABLE_TYPING_TESTS, where))
+	if err != nil {
+		logger.Println("Error reading sum from database", err)
+		return 0, err
+	}
+	if rows.Next() {
+		var sum any
+		rows.Scan(&sum)
+		return sum, nil
+	}
+	return 0, errors.New("could not fetch query result")
+}
+
+func (r TypingTestRepository) Avg(field string, conditions string) (any, error) {
+	where := ""
+	if conditions != "" {
+		where = "WHERE " + conditions
+	}
+	q := fmt.Sprintf("SELECT AVG(%s) FROM %s %s", field, TABLE_TYPING_TESTS, where)
+	rows, err := r.db.Query(q)
+	if err != nil {
+		logger.Println("Error on typing test repository Avg", err)
+		return 0, err
+	}
+
+	if rows.Next() {
+		var val any
+		rows.Scan(&val)
+		return val, nil
+	}
+
+	return 0, errors.New("could not fetch query result")
 }
