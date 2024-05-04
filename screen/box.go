@@ -39,8 +39,8 @@ func DrawBox(position BufferPosition, size BufferSize, screen tcell.Screen, titl
 		screen.SetContent(position.X, i, '│', nil, borderStyle)
 		screen.SetContent(position.X+size.Width-1, i, '│', nil, borderStyle)
 	}
-	for i := position.X + 2; i < position.X+size.Width-2; i += 1 {
-		for j := position.Y + 2; j < position.Y+size.Height-2; j += 1 {
+	for i := position.X + 1; i < position.X+size.Width-1; i += 1 {
+		for j := position.Y + 1; j < position.Y+size.Height-1; j += 1 {
 			screen.SetContent(i, j, ' ', nil, borderStyle)
 		}
 	}
