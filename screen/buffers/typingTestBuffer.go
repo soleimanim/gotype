@@ -27,6 +27,31 @@ const (
 	TestMode60Seconds TestMode = 7
 )
 
+type TestBufferMenuItem struct {
+	Label  string
+	Key    tcell.Key
+	Action func(*TypingTestBuffer)
+}
+
+var menuItems []TestBufferMenuItem = []TestBufferMenuItem{
+	{
+		Label: "New Test:",
+		Key:   tcell.KeyF1,
+		Action: func(b *TypingTestBuffer) {
+			b.window.RemoveBuffer(TYPING_BUFFER_IDENTIFIER)
+			buff := NewTypingTestBuffer(b.Position, b.Size, b.Mode, b.Repository)
+			b.window.AppendBuffer(&buff)
+		},
+	},
+	{
+		Label: "Repeat:",
+		Key:   tcell.KeyF2,
+		Action: func(b *TypingTestBuffer) {
+			b.reset()
+		},
+	},
+}
+
 type TypingEvent struct {
 	Time time.Time
 	Key  *tcell.EventKey
@@ -36,9 +61,8 @@ type TypingTestBuffer struct {
 	Size     screen.BufferSize
 	Position screen.BufferPosition
 
-	Mode        TestMode
-	Repository  db.Repository[db.TypingTestModel]
-	recentTests []db.TypingTestModel
+	Mode       TestMode
+	Repository db.Repository[db.TypingTestModel]
 
 	y        int
 	screen   tcell.Screen
@@ -63,7 +87,7 @@ func GetTypingTestBufferPositionAndSize(s tcell.Screen) (screen.BufferPosition, 
 			Y: 0,
 		}, screen.BufferSize{
 			Width:  w * 3 / 4,
-			Height: h,
+			Height: h / 2,
 		}
 }
 
@@ -137,6 +161,8 @@ func (b *TypingTestBuffer) Draw() {
 		}
 	}
 
+	b.drawMenu()
+
 	if b.isFinished || b.isReplaying {
 		b.screen.HideCursor()
 	}
@@ -164,6 +190,13 @@ func (b *TypingTestBuffer) SetWindow(w *screen.Window) {
 }
 
 func (b *TypingTestBuffer) HandleKeyEvent(ev *tcell.EventKey) {
+	for _, m := range menuItems {
+		if m.Key == ev.Key() {
+			m.Action(b)
+			return
+		}
+	}
+
 	if b.isReplaying {
 		if ev.Rune() == 'x' || ev.Rune() == 'X' {
 			b.isReplaying = false
@@ -348,11 +381,16 @@ func (b *TypingTestBuffer) onFinished() {
 	rb := b.window.GetBufferByID(RECENT_TESTS_BUFFER_ID)
 	if rb != nil {
 		buffer, ok := rb.(*RecentTestsBuffer)
-		if !ok {
-			return
+		if ok {
+			buffer.Update()
 		}
-		buffer.Update()
-
+	}
+	sb := b.window.GetBufferByID(STATS_BUFFER_ID)
+	if sb != nil {
+		buffer, ok := sb.(*StatsBuffer)
+		if ok {
+			buffer.Update()
+		}
 	}
 }
 
@@ -369,4 +407,45 @@ func (b TypingTestBuffer) getWordsCount(mode TestMode) uint {
 	}
 
 	return 25
+}
+
+func (b TypingTestBuffer) drawMenu() {
+	y := b.Size.Height - 3
+	x := b.Position.X + 1
+	w := b.Size.Width - 2
+
+	lineX := x
+	style := styles.BorderStyle.Foreground(tcell.ColorLightGray)
+	for range w {
+		b.screen.SetContent(lineX, y, '─', nil, style)
+		lineX++
+	}
+
+	spacing := 5
+	startX := x
+	y += 1
+	menuCount := len(menuItems)
+
+	for i, m := range menuItems {
+		screen.DrawText(b.screen, m.Label, &startX, &y, tcell.StyleDefault.Foreground(tcell.ColorRoyalBlue))
+		startX++
+		screen.DrawText(b.screen, tcell.KeyNames[m.Key], &startX, &y, tcell.StyleDefault.Foreground(tcell.ColorPurple))
+		if i != menuCount-1 {
+			b.screen.SetContent(startX+spacing/2, y, '|', nil, styles.BorderStyle)
+		}
+		startX += spacing
+	}
+}
+
+func (b *TypingTestBuffer) reset() {
+	b.input = ""
+	b.mistakesCount = 0
+	b.recordedEvents = []TypingEvent{}
+	b.isReplaying = false
+	b.speed = 0
+	b.accuracy = 0
+	b.isFinished = false
+	b.speed = 0
+	b.accuracy = 0
+	b.isFinished = false
 }

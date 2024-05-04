@@ -20,8 +20,8 @@ type BoxTitle struct {
 	Alignment TextAlignment
 }
 
-func DrawBox(position BufferPosition, size BufferSize, screen tcell.Screen, title BoxTitle, bgColor tcell.Color) {
-	borderStyle := styles.BorderStyle.Background(bgColor)
+func DrawBoxWithStyle(position BufferPosition, size BufferSize, screen tcell.Screen, title BoxTitle, style tcell.Style) {
+	borderStyle := style
 	// corners
 	screen.SetContent(position.X, position.Y, '╭', nil, borderStyle)
 	screen.SetContent(position.X+size.Width-1, position.Y, '╮', nil, borderStyle)
@@ -56,4 +56,9 @@ func DrawBox(position BufferPosition, size BufferSize, screen tcell.Screen, titl
 
 		DrawText(screen, t, &x, &position.Y, borderStyle)
 	}
+}
+
+func DrawBox(position BufferPosition, size BufferSize, screen tcell.Screen, title BoxTitle, bgColor tcell.Color) {
+	style := styles.BorderStyle.Background(bgColor)
+	DrawBoxWithStyle(position, size, screen, title, style)
 }
