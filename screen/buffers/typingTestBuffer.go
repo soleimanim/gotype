@@ -131,7 +131,19 @@ func (b *TypingTestBuffer) Draw() {
 		Alignment: screen.TextAlignmentLeft,
 	})
 	b.y = b.Position.Y + 1
+
+	// Show typed words count or remaining time based on the mode
+	// TODO: Add remaining time when time modes implemented
+	typedWords := b.countWords(b.input)
+	totalWords := b.countWords(b.testText)
 	startX := b.Position.X + 2
+	if len(b.recordedEvents) > 0 {
+		screen.DrawText(b.screen, fmt.Sprintf("%d / %d", typedWords, totalWords), &startX, &b.y, styles.Style(tcell.ColorOrange, tcell.ColorReset))
+	}
+
+	b.y += 1
+
+	startX = b.Position.X + 2
 	for i, r := range b.testText {
 		style := styles.TextPlaceHolderStyle
 		if len(b.input) > i {
