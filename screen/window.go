@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/soleimanim/gotype/styles"
 )
 
 type Window struct {
@@ -35,7 +36,7 @@ func (w *Window) Init() error {
 	if err != nil {
 		return err
 	}
-	screen.SetStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorReset))
+	screen.SetStyle(styles.StyleReset())
 
 	screen.Clear()
 	w.Screen = screen

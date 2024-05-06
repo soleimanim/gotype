@@ -6,6 +6,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/soleimanim/gotype/db"
 	"github.com/soleimanim/gotype/screen"
+	"github.com/soleimanim/gotype/styles"
 )
 
 const STATS_BUFFER_ID = 6
@@ -56,10 +57,10 @@ func (b StatsBuffer) Draw() {
 	screen.DrawBox(b.Position, b.Size, b.screen, screen.BoxTitle{
 		Title:     "Stats",
 		Alignment: screen.TextAlignmentLeft,
-	}, tcell.ColorReset)
+	})
 
-	keyStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorBlack)
-	valStyle := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorDarkGray).Bold(true)
+	keyStyle := styles.ForegroundStyle(tcell.ColorReset)
+	valStyle := styles.ForegroundStyle(tcell.ColorDarkGray).Bold(true)
 
 	val := b.BestSpeed.FormatValue("%.2f WPS")
 	b.drawKeyVal(b.BestSpeed.Key, val, keyStyle, valStyle)

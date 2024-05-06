@@ -8,6 +8,7 @@ import (
 	"github.com/soleimanim/gotype/db"
 	"github.com/soleimanim/gotype/logger"
 	"github.com/soleimanim/gotype/screen"
+	"github.com/soleimanim/gotype/styles"
 )
 
 const RECENT_TESTS_BUFFER_ID = 5
@@ -39,11 +40,11 @@ func (b RecentTestsBuffer) Draw() {
 	screen.DrawBox(b.Position, b.Size, b.screen, screen.BoxTitle{
 		Title:     "Recent Tests",
 		Alignment: screen.TextAlignmentLeft,
-	}, tcell.ColorReset)
+	})
 
 	if len(b.RecentTests) == 0 {
 		logger.Println("no recent tests, printing no recent test message")
-		style := tcell.StyleDefault.Foreground(tcell.ColorLightGray)
+		style := styles.ForegroundStyle(tcell.ColorLightGray)
 		message := "No recent tests to show."
 		x := b.Position.X + b.Size.Width/2 - len(message)/2
 		y := b.Position.Y + 2
@@ -68,7 +69,7 @@ func (b RecentTestsBuffer) Draw() {
 	}
 
 	b.Position.Y += 1
-	style := tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorBlack)
+	style := styles.ForegroundStyle(tcell.ColorBlack)
 	remainingSpace := (b.Size.Width - maxAccLen - maxSpeedLen - timeLen - 2) / 2
 
 	timeX := b.Position.X + 1
@@ -89,7 +90,7 @@ func (b RecentTestsBuffer) Draw() {
 		speed := fmt.Sprintf("%.2f WPS", t.Speed)
 		acc := fmt.Sprintf("%.2f%%", t.Accuracy)
 
-		screen.DrawText(b.screen, time, &timeX, &b.Position.Y, style)
+		screen.DrawText(b.screen, time, &timeX, &b.Position.Y, styles.Style(tcell.ColorReset, tcell.ColorReset))
 		screen.DrawText(b.screen, speed, &speedX, &b.Position.Y, b.getSpeedStyle(t))
 		screen.DrawText(b.screen, acc, &accX, &b.Position.Y, b.getAccStyle(t))
 		b.Position.Y += 1
@@ -153,7 +154,7 @@ func (b RecentTestsBuffer) normalizedAccuracy(num float32) float32 {
 
 func (b RecentTestsBuffer) getSpeedStyle(t db.TypingTestModel) tcell.Style {
 	normalizedSpeed := b.normalizedSpeed(t.Speed)
-	speedStyle := tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorReset)
+	speedStyle := styles.ForegroundStyle(tcell.ColorBlack)
 	if normalizedSpeed == 1 {
 		speedStyle = speedStyle.Foreground(tcell.ColorDarkBlue).Background(tcell.ColorLightSkyBlue)
 	} else if normalizedSpeed == 0 {
@@ -175,7 +176,7 @@ func (b RecentTestsBuffer) getSpeedStyle(t db.TypingTestModel) tcell.Style {
 }
 
 func (b RecentTestsBuffer) getAccStyle(t db.TypingTestModel) tcell.Style {
-	accStyle := tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorReset)
+	accStyle := styles.ForegroundStyle(tcell.ColorBlack)
 	normalizedAcc := b.normalizedAccuracy(t.Accuracy)
 	if normalizedAcc == 1 {
 		accStyle = accStyle.Foreground(tcell.ColorDarkBlue).Background(tcell.ColorLightSkyBlue)

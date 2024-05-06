@@ -129,8 +129,7 @@ func (b *TypingTestBuffer) Draw() {
 	screen.DrawBox(b.Position, b.Size, b.screen, screen.BoxTitle{
 		Title:     "Typing Test",
 		Alignment: screen.TextAlignmentLeft,
-	}, tcell.ColorReset)
-
+	})
 	b.y = b.Position.Y + 1
 	startX := b.Position.X + 2
 	for i, r := range b.testText {
@@ -171,10 +170,10 @@ func (b *TypingTestBuffer) Draw() {
 		y += 2
 		x := 0
 
-		screen.DrawText(b.screen, "Replaying...", &x, &y, tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.ColorLightGrey))
-		screen.DrawText(b.screen, " Press ", &x, &y, tcell.StyleDefault.Foreground(tcell.ColorLightGray))
-		screen.DrawText(b.screen, " X ", &x, &y, tcell.StyleDefault.Background(tcell.ColorLightPink).Foreground(tcell.ColorRed))
-		screen.DrawText(b.screen, " to cancel replaying. ", &x, &y, tcell.StyleDefault.Foreground(tcell.ColorLightGray))
+		screen.DrawText(b.screen, "Replaying...", &x, &y, styles.ForegroundStyle(tcell.ColorLightGray))
+		screen.DrawText(b.screen, " Press ", &x, &y, styles.ForegroundStyle(tcell.ColorLightGray))
+		screen.DrawText(b.screen, " X ", &x, &y, styles.Style(tcell.ColorRed, tcell.ColorLightPink))
+		screen.DrawText(b.screen, " to cancel replaying. ", &x, &y, styles.ForegroundStyle(tcell.ColorLightGray))
 	}
 }
 
@@ -341,7 +340,7 @@ func (b *TypingTestBuffer) showTestResult() {
 			{
 				Label: " New Test ⏎ ",
 				Key:   tcell.KeyEnter,
-				Style: tcell.StyleDefault.Background(tcell.ColorWhite).Background(tcell.ColorSkyblue),
+				Style: styles.Style(tcell.ColorSkyblue, tcell.ColorWhite),
 				Action: func() bool {
 					b.window.RemoveBuffer(TYPING_BUFFER_IDENTIFIER)
 					newBuffer := NewTypingTestBuffer(b.Position, b.Size, b.Mode, b.Repository)
@@ -352,14 +351,14 @@ func (b *TypingTestBuffer) showTestResult() {
 			{
 				Label: " Replay ^R ",
 				Key:   tcell.KeyCtrlR,
-				Style: tcell.StyleDefault.Background(tcell.ColorWhite).Background(tcell.ColorSkyblue),
+				Style: styles.Style(tcell.ColorWhite, tcell.ColorSkyblue),
 				Action: func() bool {
 					b.Replay()
 					return true
 				},
 			},
 		},
-		TitleStyle: tcell.StyleDefault.Bold(true).Foreground(tcell.ColorBlack),
+		TitleStyle: styles.ForegroundStyle(tcell.ColorBlack).Bold(true),
 	}
 
 	b.window.AppendBuffer(&dialog)
@@ -427,9 +426,9 @@ func (b TypingTestBuffer) drawMenu() {
 	menuCount := len(menuItems)
 
 	for i, m := range menuItems {
-		screen.DrawText(b.screen, m.Label, &startX, &y, tcell.StyleDefault.Foreground(tcell.ColorRoyalBlue))
+		screen.DrawText(b.screen, m.Label, &startX, &y, styles.ForegroundStyle(tcell.ColorRoyalBlue))
 		startX++
-		screen.DrawText(b.screen, tcell.KeyNames[m.Key], &startX, &y, tcell.StyleDefault.Foreground(tcell.ColorPurple))
+		screen.DrawText(b.screen, tcell.KeyNames[m.Key], &startX, &y, styles.ForegroundStyle(tcell.ColorPurple))
 		if i != menuCount-1 {
 			b.screen.SetContent(startX+spacing/2, y, '|', nil, styles.BorderStyle)
 		}

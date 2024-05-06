@@ -58,7 +58,7 @@ func DrawBoxWithStyle(position BufferPosition, size BufferSize, screen tcell.Scr
 	}
 }
 
-func DrawBox(position BufferPosition, size BufferSize, screen tcell.Screen, title BoxTitle, bgColor tcell.Color) {
-	style := styles.BorderStyle.Background(bgColor)
+func DrawBox(position BufferPosition, size BufferSize, screen tcell.Screen, title BoxTitle) {
+	style := styles.BorderStyle
 	DrawBoxWithStyle(position, size, screen, title, style)
 }

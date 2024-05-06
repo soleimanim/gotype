@@ -79,7 +79,7 @@ func (b DialogBuffer) Draw() {
 	}, b.screen, screen.BoxTitle{
 		Title:     b.Title,
 		Alignment: screen.TextAlignmentLeft,
-	}, tcell.ColorReset)
+	})
 
 	if titleLen < containerWidth {
 		// x := containerX + containerWidth/2 - titleLen/2 - 1

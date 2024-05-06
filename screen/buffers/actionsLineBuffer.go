@@ -4,6 +4,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/soleimanim/gotype/db"
 	"github.com/soleimanim/gotype/screen"
+	"github.com/soleimanim/gotype/styles"
 )
 
 const ACTION_LINE_BUFFER_ID = 4
@@ -98,16 +99,16 @@ func (b *ActionsLineBuffer) Draw() {
 
 	text := "Feedback At: https://github.com/soleimanim/gotype"
 	x := screenWidth - len(text)
-	screen.DrawText(b.screen, text, &x, &y, tcell.StyleDefault.Foreground(tcell.ColorLightGreen))
+	screen.DrawText(b.screen, text, &x, &y, styles.ForegroundStyle(tcell.ColorLightGreen))
 
 	y += 1
 	for i := range screenWidth {
-		b.screen.SetContent(i, y, ' ', nil, tcell.StyleDefault.Background(tcell.NewRGBColor(238, 234, 211)))
+		b.screen.SetContent(i, y, ' ', nil, styles.Style(tcell.ColorReset, tcell.NewRGBColor(238, 234, 211)))
 	}
 
 	// draw menuItems
 	x = 0
-	bgStyle := tcell.StyleDefault.Background(tcell.ColorLightSkyBlue).Foreground(tcell.ColorWhite)
+	bgStyle := styles.Style(tcell.ColorWhite, tcell.ColorLightSkyBlue)
 	for i, m := range b.menuItems {
 		switch menu := m.(type) {
 		case *ActionsLineMenuSwitch:
